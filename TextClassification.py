@@ -104,3 +104,22 @@ with torch.no_grad():
 report = classification_report(all_labels, all_preds, target_names=['Negative', 'Positive'])
 print("\nClassification Report:")
 print(report)
+
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.metrics import confusion_matrix
+
+# Generate a confusion matrix
+conf_matrix = confusion_matrix(all_labels, all_preds)
+
+# Plot the confusion matrix
+plt.figure(figsize=(8, 6))
+sns.heatmap(conf_matrix, annot=True, fmt='d', cmap='Blues', xticklabels=['Negative', 'Positive'], yticklabels=['Negative', 'Positive'])
+plt.xlabel('Predicted')
+plt.ylabel('True')
+plt.title('Confusion Matrix for IMDb Sentiment Analysis with BERT')
+plt.show()
+
+# Save the confusion matrix as an image file
+plt.savefig('confusion_matrix_imdb_bert.png')
+print("Confusion matrix saved as 'confusion_matrix_imdb_bert.png'.")
