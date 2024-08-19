@@ -77,3 +77,30 @@ for epoch in range(num_epochs):
 # Save the fine-tuned model
 model.save_pretrained('fine_tuned_bert_imdb')
 tokenizer.save_pretrained('fine_tuned_bert_imdb')
+
+from sklearn.metrics import classification_report
+
+# Set the model to evaluation mode
+model.eval()
+
+# Store predictions and true labels
+all_preds = []
+all_labels = []
+
+# No gradient calculation needed during evaluation
+with torch.no_grad():
+    for batch in test_loader:
+        inputs = {key: val.to(device) for key, val in batch.items() if key != 'label'}
+        labels = batch['label'].to(device)
+        
+        outputs = model(**inputs)
+        logits = outputs.logits
+        preds = torch.argmax(logits, dim=-1)
+        
+        all_preds.extend(preds.cpu().numpy())
+        all_labels.extend(labels.cpu().numpy())
+
+# Generate a classification report
+report = classification_report(all_labels, all_preds, target_names=['Negative', 'Positive'])
+print("\nClassification Report:")
+print(report)
