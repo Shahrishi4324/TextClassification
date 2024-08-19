@@ -45,3 +45,35 @@ test_loader = DataLoader(tokenized_datasets['test'], batch_size=16, shuffle=Fals
 # Display the structure of the tokenized dataset
 print("\nTokenized Dataset Structure:")
 print(tokenized_datasets)
+
+from transformers import BertForSequenceClassification, AdamW
+
+# Load the pre-trained BERT model for sequence classification (2 classes for sentiment analysis)
+model = BertForSequenceClassification.from_pretrained('bert-base-uncased', num_labels=2).to(device)
+
+# Define the optimizer (AdamW) for fine-tuning BERT
+optimizer = AdamW(model.parameters(), lr=2e-5)
+
+# Fine-tuning loop (simplified for demonstration purposes)
+num_epochs = 3
+
+for epoch in range(num_epochs):
+    model.train()
+    for batch in train_loader:
+        inputs = {key: val.to(device) for key, val in batch.items() if key != 'label'}
+        labels = batch['label'].to(device)
+        
+        # Forward pass
+        outputs = model(**inputs, labels=labels)
+        loss = outputs.loss
+        
+        # Backward pass and optimization
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+    
+    print(f"Epoch {epoch + 1}/{num_epochs} completed. Loss: {loss.item():.4f}")
+
+# Save the fine-tuned model
+model.save_pretrained('fine_tuned_bert_imdb')
+tokenizer.save_pretrained('fine_tuned_bert_imdb')
